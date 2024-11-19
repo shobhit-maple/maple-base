@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maple-prometheus-deployment
+  namespace: maple-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maple-prometheus
+  template:
+    metadata:
+      labels:
+        app: maple-prometheus
+    spec:
+      containers:
+        - name: maple-prometheus
+          image: prom/prometheus:v2.40.0
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+          volumeMounts:
+            - name: maple-prometheus-config-volume
+              mountPath: /etc/prometheus
+      volumes:
+        - name: maple-prometheus-config-volume
+          configMap:
+            name: maple-prometheus-configmap

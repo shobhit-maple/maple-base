@@ -1,0 +1,214 @@
+version: '3.8'
+services:
+
+  user-auth-db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=maple-user-auth
+    ports:
+      - '5401:5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - user-auth-db:/var/lib/postgresql/data
+
+  maple-user-auth-service:
+    image: shobhittyagi1011/maple-user-auth-service:latest
+    container_name: maple-user-auth-service
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      user-auth-db:
+        condition: service_healthy
+    environment:
+      DB_URI: jdbc:postgresql://user-auth-db:5432/maple-user-auth
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  organization-db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=maple-organization
+    ports:
+      - '5402:5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - organization-db:/var/lib/postgresql/data
+
+  maple-organization-service:
+    image: shobhittyagi1011/maple-organization-service:latest
+    container_name: maple-organization-service
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      organization-db:
+        condition: service_healthy
+    environment:
+      DB_URI: jdbc:postgresql://organization-db:5432/maple-organization
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  project-db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=maple-project
+    ports:
+      - '5403:5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - project-db:/var/lib/postgresql/data
+
+  maple-project-service:
+    image: shobhittyagi1011/maple-project-service:latest
+    container_name: maple-project-service
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      project-db:
+        condition: service_healthy
+    environment:
+      DB_URI: jdbc:postgresql://project-db:5432/maple-project
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  user-account-db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=maple-user-account
+    ports:
+      - '5404:5432'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - user-account-db:/var/lib/postgresql/data
+
+  maple-user-account-service:
+    image: shobhittyagi1011/maple-user-account-service:latest
+    container_name: maple-user-account-service
+    ports:
+      - "8084:8084"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8084/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      user-account-db:
+        condition: service_healthy
+    environment:
+      DB_URI: jdbc:postgresql://user-account-db:5432/maple-user-account
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  architecture-db:
+    image: neo4j:latest
+    container_name: architecture-db
+    environment:
+      - NEO4J_AUTH=neo4j/test_password
+      - NEO4J_dbms_security_auth__enabled=true
+      - NEO4J_dbms_default__listen__address=0.0.0.0
+      - NEO4J_dbms_connector_bolt_advertised__address=:7687
+      - NEO4J_dbms_connector_http_advertised__address=:7474
+    ports:
+      - 7474:7474
+      - 7687:7687
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p test_password 'RETURN 1;' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /$HOME/neo4j/logs:/logs
+      - /$HOME/neo4j/data:/data
+
+  maple-architecture-service:
+    image: shobhittyagi1011/maple-architecture-service:latest
+    container_name: maple-architecture-service
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      architecture-db:
+        condition: service_healthy
+    environment:
+      DB_URI: neo4j://architecture-db:7687
+      DB_USERNAME: neo4j
+      DB_PASSWORD: test_password
+
+  maple-api-router-service:
+    image: shobhittyagi1011/maple-api-router-service:latest
+    container_name: maple-api-router-service
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      maple-user-auth-service:
+        condition: service_healthy
+      maple-organization-service:
+        condition: service_healthy
+      maple-project-service:
+        condition: service_healthy
+      maple-user-account-service:
+        condition: service_healthy
+      maple-architecture-service:
+        condition: service_healthy
+
+volumes:
+  project-db:
+    driver: local
+  organization-db:
+    driver: local
+  user-account-db:
+    driver: local
+  user-auth-db:
+    driver: local
+
