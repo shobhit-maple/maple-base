@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: maple-redeployer
+  namespace: maple-system
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: k8s-redeployer
+              image: shobhittyagi1011/maple-service-redeployer:latest
+              args:
+                - "maple-api-router"
+                - "maple-user-auth"
+                - "maple-user-account"
+                - "maple-organization"
+                - "maple-project"
+                - "maple-architecture"
+          restartPolicy: OnFailure
