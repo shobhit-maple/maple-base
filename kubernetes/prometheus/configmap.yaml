@@ -9,7 +9,27 @@ data:
       scrape_interval: 15s
 
     scrape_configs:
-      - job_name: 'maple-envoy'
+      - job_name: 'maple-api-router-metrics-job'
         metrics_path: '/stats/prometheus'
         static_configs:
           - targets: ['maple-api-router-service.maple-system.svc.cluster.local:9901']
+      - job_name: 'maple-user-auth-metrics-job'
+        metrics_path: '/stats/prometheus'
+        static_configs:
+          - targets: ['maple-user-auth-service.maple-system.svc.cluster.local:9901']
+      - job_name: 'maple-user-account-metrics-job'
+        metrics_path: '/stats/prometheus'
+        static_configs:
+          - targets: ['maple-user-account-service.maple-system.svc.cluster.local:9901']
+      - job_name: 'maple-organization-metrics-job'
+        metrics_path: '/stats/prometheus'
+        static_configs:
+          - targets: ['maple-organization-service.maple-system.svc.cluster.local:9901']
+      - job_name: 'maple-project-metrics-job'
+        metrics_path: '/stats/prometheus'
+        static_configs:
+          - targets: ['maple-project-service.maple-system.svc.cluster.local:9901']
+      - job_name: 'maple-architecture-metrics-job'
+        metrics_path: '/stats/prometheus'
+        static_configs:
+          - targets: ['maple-architecture-service.maple-system.svc.cluster.local:9901']    
