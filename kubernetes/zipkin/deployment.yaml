@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: maple-zipkin-deployment
-  namespace: tracing
+  namespace: maple-tracing
   labels:
     app: maple-zipkin
 spec:
