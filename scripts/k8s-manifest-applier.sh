@@ -5,7 +5,7 @@ set -e
 ORG="shobhit-maple"
 
 REPOS=(
-  "maple-base" "maple-api-router-service"
+  "maple-base"
 )
 
 MANIFEST_DIR="kubernetes"
