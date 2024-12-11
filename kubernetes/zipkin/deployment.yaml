@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maple-zipkin-deployment
+  namespace: tracing
+  labels:
+    app: maple-zipkin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maple-zipkin
+  template:
+    metadata:
+      labels:
+        app: maple-zipkin
+    spec:
+      containers:
+        - name: maple-zipkin
+          image: openzipkin/zipkin:latest
+          ports:
+            - containerPort: 9411

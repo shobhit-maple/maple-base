@@ -4,11 +4,8 @@ set -e
 
 ORG="shobhit-maple"
 
-#REPOS=(
-#  "maple-base" "maple-api-router-service" "maple-user-auth-service" "maple-user-account-service" "maple-organization-service" "maple-project-service" "maple-architecture-service"
-#)
 REPOS=(
-  "maple-base"
+  "maple-base" "maple-api-router-service"
 )
 
 MANIFEST_DIR="kubernetes"
